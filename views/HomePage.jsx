@@ -3,7 +3,7 @@ import styles from "./Homepage.module.scss";
 import { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 export default function HomePage() {
-  const [summarizedText, setSummarizeText] = useState("");
+  const [summarizedText, setSummarizedText] = useState("");
   const [longText, setLongText] = useState("");
   const [summarizedTextStore, setSummarizedTextStore] = useState("");
   const [buttonText, setButtonText] = useState("Summarize");
@@ -14,11 +14,20 @@ export default function HomePage() {
         text: summarizedText,
       },
     });
-    console.log(res);
     setButtonText("Summarize");
-    setSummarizedTextStore(longText);
+    console.log(res);
 
-    setSummarizeText(longText);
+    if (res.status == 200) {
+      setSummarizedText(longText);
+      setSummarizedTextStore(longText);
+      return;
+    } else {
+      console.error("Failed to summarize text");
+      setSummarizedText(`Failed to summarize text. Status Code: ${res.status}`);
+      setTimeout(() => {
+        setSummarizedText("Old Text: " + summarizedTextStore);
+      }, 2000);
+    }
   }, 300);
   return (
     <>
@@ -53,6 +62,7 @@ export default function HomePage() {
               className={styles.textBox}
               name=""
               id=""
+              readOnly
               value={summarizedText}
             ></textarea>
           </div>
