@@ -1,20 +1,25 @@
 import Head from "next/head";
 import styles from "./Homepage.module.scss";
 import { useState } from "react";
-
+import { useDebouncedCallback } from "use-debounce";
 export default function HomePage() {
   const [summarizedText, setSummarizeText] = useState("");
   const [longText, setLongText] = useState("");
   const [summarizedTextStore, setSummarizedTextStore] = useState("");
-  async function summarizeText() {
-    const res = fetch("/api/summarize", {
+  const [buttonText, setButtonText] = useState("Summarize");
+  const summarizeText = useDebouncedCallback(async () => {
+    const res = await fetch("/api/summarize", {
       method: "POST",
       body: {
         text: summarizedText,
       },
     });
-    return "";
-  }
+    console.log(res);
+    setButtonText("Summarize");
+    setSummarizedTextStore(longText);
+
+    setSummarizeText(longText);
+  }, 300);
   return (
     <>
       <Head>
@@ -34,9 +39,22 @@ export default function HomePage() {
               id=""
             ></textarea>
 
-            <div className={styles.convertButton}>Summarize</div>
+            <div
+              onClick={() => {
+                summarizeText();
+                setButtonText("Summarizing...");
+              }}
+              className={styles.convertButton}
+            >
+              {buttonText}
+            </div>
 
-            <textarea className={styles.textBox} name="" id=""></textarea>
+            <textarea
+              className={styles.textBox}
+              name=""
+              id=""
+              value={summarizedText}
+            ></textarea>
           </div>
         </div>
       </main>
